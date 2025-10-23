@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrossel Responsivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .carrossel-container {
+            position: relative;
+            width: 95vw;
+            height: 90vh;
+            max-width: 1400px;
+            max-height: 900px;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background: white;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Para mobile/tablet - layout vertical */
+        @media (max-width: 1024px) {
+            .carrossel-container {
+                width: 95vw;
+                height: 85vh;
+                max-height: 800px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .carrossel-container {
+                width: 98vw;
+                height: 80vh;
+                max-height: 700px;
+            }
+        }
+
+        .carrossel-slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            position: relative;
+        }
+
+        /* Imagem para DESKTOP (horizontal) */
+        .slide-img.desktop {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Imagem para MOBILE/TABLET (vertical) */
+        .slide-img.mobile {
+            width: auto;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        /* Detecta dispositivo e mostra a imagem correta */
+        /* Desktop - mostra imagem horizontal */
+        @media (min-width: 1025px) {
+            .slide-img.desktop {
+                display: block;
+            }
+            .slide-img.mobile {
+                display: none;
+            }
+        }
+
+        /* Tablet e Mobile - mostra imagem vertical */
+        @media (max-width: 1024px) {
+            .slide-img.desktop {
+                display: none;
+            }
+            .slide-img.mobile {
+                display: block;
+            }
+            
+            /* Ajusta o fundo para imagens verticais */
+            .slide {
+                background: #f8f9fa;
+            }
+        }
+
+        /* Para telas muito pequenas (mobile) */
+        @media (max-width: 480px) {
+            .carrossel-container {
+                height: 75vh;
+                border-radius: 8px;
+            }
+        }
+
+        /* Botões de Navegação */
+        .carrossel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.95);
+            color: #2c3e50;
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e9ecef;
+        }
+
+        .carrossel-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            color: #1a1a1a;
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+
+        /* Indicadores de Página */
+        .carrossel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            border: 1px solid #e9ecef;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #adb5bd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: #495057;
+            transform: scale(1.2);
+        }
+
+        .indicator:hover {
+            background: #6c757d;
+            transform: scale(1.1);
+        }
+
+        /* Contador de Slides */
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            border: 1px solid #e9ecef;
+        }
+
+        /* Indicador de Dispositivo (apenas para debug) */
+        .device-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            border: 1px solid #e9ecef;
+        }
+
+        /* Responsivo para botões em mobile */
+        @media (max-width: 768px) {
+            .carrossel-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            
+            .prev-btn {
+                left: 12px;
+            }
+            
+            .next-btn {
+                right: 12px;
+            }
+            
+            .carrossel-indicators {
+                bottom: 15px;
+                padding: 8px 12px;
+            }
+            
+            .slide-counter {
+                top: 15px;
+                right: 15px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .carrossel-btn {
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
+            
+            .carrossel-indicators {
+                bottom: 12px;
+            }
+            
+            .indicator {
+                width: 8px;
+                height: 8px;
+            }
+        }
+
+        /* Loading states */
+        .slide.loading {
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #495057;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="carrossel-container">
+        <div class="device-indicator" id="deviceIndicator">Desktop</div>
+        <div class="slide-counter" id="slideCounter">1 / 3</div>
+        
+        <!-- ÁREA DOS SLIDES -->
+        <div class="carrossel-slides" id="carrosselSlides">
+            <!-- 
+            PARA CADA SLIDE, VOCÊ PRECISA DE 2 IMAGENS:
+            1. Versão HORIZONTAL para desktop (.desktop)
+            2. Versão VERTICAL para mobile (.mobile)
+            
+            EXEMPLO:
+            <div class="slide active">
+                <img src="arte1-horizontal.jpg" alt="Arte 1" class="slide-img desktop">
+                <img src="arte1-vertical.jpg" alt="Arte 1" class="slide-img mobile">
+            </div>
+            -->
+            
+            <!-- EXEMPLO DE SLIDES - SUBSTITUA COM SUAS IMAGENS -->
+            <div class="slide active">
+                <!-- Imagem HORIZONTAL para Desktop -->
+                <img src="CAPAd.png" 
+                     alt="Paisagem horizontal" class="slide-img desktop">
+                <!-- Imagem VERTICAL para Mobile -->
+                <img src="CAPA.png" 
+                     alt="Paisagem vertical" class="slide-img mobile">
+            </div>
+            
+            <div class="slide">
+                <img src="IMG TXT-01.png" 
+                     alt="Floresta horizontal" class="slide-img desktop">
+                <img src="mobile-002.png" 
+                     alt="Floresta vertical" class="slide-img mobile">
+            </div>
+            
+            <div class="slide">
+                <img src="IMG TXT-02.png" 
+                     alt="Praia horizontal" class="slide-img desktop">
+                <img src="mobile-003.png" 
+                     alt="Praia vertical" class="slide-img mobile">
+            </div>
+
+             <div class="slide">
+                <img src="IMG TXT-03.png" 
+                     alt="Praia horizontal" class="slide-img desktop">
+                <img src="mobile-004.png" 
+                     alt="Praia vertical" class="slide-img mobile">
+            </div>
+
+            <div class="slide">
+                <img src="IMG TXT-04.png" 
+                     alt="Praia horizontal" class="slide-img desktop">
+                <img src="mobile-005.png" 
+                     alt="Praia vertical" class="slide-img mobile">
+            </div>
+
+             <div class="slide">
+                <img src="FINAL.png" 
+                     alt="Praia horizontal" class="slide-img desktop">
+                <img src="mobile-006.png" 
+                     alt="Praia vertical" class="slide-img mobile">
+            </div>
+
+
+            
+        </div>
+
+        <!-- Botões de Navegação -->
+        <button class="carrossel-btn prev-btn" aria-label="Slide anterior">‹</button>
+        <button class="carrossel-btn next-btn" aria-label="Próximo slide">›</button>
+
+        <!-- Indicadores de Página -->
+        <div class="carrossel-indicators" id="indicators">
+            <!-- Os indicadores serão gerados automaticamente -->
+        </div>
+    </div>
+
+    <script>
+        class CarrosselResponsivo {
+            constructor() {
+                this.slidesContainer = document.getElementById('carrosselSlides');
+                this.slideItems = document.querySelectorAll('.slide');
+                this.prevBtn = document.querySelector('.prev-btn');
+                this.nextBtn = document.querySelector('.next-btn');
+                this.indicatorsContainer = document.getElementById('indicators');
+                this.slideCounter = document.getElementById('slideCounter');
+                this.deviceIndicator = document.getElementById('deviceIndicator');
+                
+                this.currentSlide = 0;
+                this.totalSlides = this.slideItems.length;
+                this.isMobile = window.innerWidth <= 1024;
+                
+                this.init();
+                this.setupResponsive();
+            }
+            
+            init() {
+                // Atualiza indicador de dispositivo
+                this.updateDeviceIndicator();
+                
+                // Cria os indicadores
+                this.createIndicators();
+                
+                // Event listeners para botões
+                this.prevBtn.addEventListener('click', () => this.prevSlide());
+                this.nextBtn.addEventListener('click', () => this.nextSlide());
+                
+                // Event listeners para indicadores
+                this.indicators.forEach(indicator => {
+                    indicator.addEventListener('click', (e) => {
+                        const slideIndex = parseInt(e.target.dataset.slide);
+                        this.goToSlide(slideIndex);
+                    });
+                });
+                
+                // Navegação por teclado
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') this.prevSlide();
+                    if (e.key === 'ArrowRight') this.nextSlide();
+                    if (e.key === 'Home') this.goToSlide(0);
+                    if (e.key === 'End') this.goToSlide(this.totalSlides - 1);
+                });
+                
+                // Swipe para mobile
+                this.setupTouchEvents();
+                
+                // Atualiza contador inicial
+                this.updateCounter();
+            }
+            
+            setupResponsive() {
+                // Detecta mudanças no tamanho da tela
+                window.addEventListener('resize', () => {
+                    const wasMobile = this.isMobile;
+                    this.isMobile = window.innerWidth <= 1024;
+                    
+                    // Se mudou entre mobile/desktop, atualiza o indicador
+                    if (wasMobile !== this.isMobile) {
+                        this.updateDeviceIndicator();
+                    }
+                });
+            }
+            
+            updateDeviceIndicator() {
+                if (this.isMobile) {
+                    this.deviceIndicator.textContent = 'Mobile';
+                    this.deviceIndicator.style.background = 'rgba(76, 175, 80, 0.9)';
+                    this.deviceIndicator.style.color = 'white';
+                } else {
+                    this.deviceIndicator.textContent = 'Desktop';
+                    this.deviceIndicator.style.background = 'rgba(33, 150, 243, 0.9)';
+                    this.deviceIndicator.style.color = 'white';
+                }
+            }
+            
+            createIndicators() {
+                this.indicatorsContainer.innerHTML = '';
+                this.indicators = [];
+                
+                for (let i = 0; i < this.totalSlides; i++) {
+                    const indicator = document.createElement('span');
+                    indicator.className = `indicator ${i === 0 ? 'active' : ''}`;
+                    indicator.dataset.slide = i;
+                    indicator.setAttribute('aria-label', `Ir para slide ${i + 1}`);
+                    this.indicatorsContainer.appendChild(indicator);
+                    this.indicators.push(indicator);
+                }
+            }
+            
+            setupTouchEvents() {
+                let startX = 0;
+                let endX = 0;
+                
+                this.slidesContainer.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+                
+                this.slidesContainer.addEventListener('touchend', (e) => {
+                    endX = e.changedTouches[0].clientX;
+                    this.handleSwipe(startX, endX);
+                });
+            }
+            
+            handleSwipe(startX, endX) {
+                const diff = startX - endX;
+                const minSwipe = 50;
+                
+                if (Math.abs(diff) > minSwipe) {
+                    if (diff > 0) {
+                        this.nextSlide();
+                    } else {
+                        this.prevSlide();
+                    }
+                }
+            }
+            
+            nextSlide() {
+                this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                this.updateCarrossel();
+            }
+            
+            prevSlide() {
+                this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+                this.updateCarrossel();
+            }
+            
+            goToSlide(slideIndex) {
+                if (slideIndex >= 0 && slideIndex < this.totalSlides) {
+                    this.currentSlide = slideIndex;
+                    this.updateCarrossel();
+                }
+            }
+            
+            updateCarrossel() {
+                // Move os slides
+                this.slidesContainer.style.transform = `translateX(-${this.currentSlide * 100}%)`;
+                
+                // Atualiza indicadores
+                this.indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === this.currentSlide);
+                });
+                
+                // Atualiza contador
+                this.updateCounter();
+                
+                // Atualiza acessibilidade
+                this.updateAccessibility();
+            }
+            
+            updateCounter() {
+                this.slideCounter.textContent = `${this.currentSlide + 1} / ${this.totalSlides}`;
+            }
+            
+            updateAccessibility() {
+                this.slideItems.forEach((slide, index) => {
+                    slide.setAttribute('aria-hidden', index !== this.currentSlide);
+                });
+            }
+        }
+
+        // Inicializa o carrossel quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new CarrosselResponsivo();
+        });
+
+        // Preload de imagens para melhor performance
+        function preloadImages() {
+            const images = document.querySelectorAll('img[src]');
+            images.forEach(img => {
+                const src = img.getAttribute('src');
+                if (src && !src.startsWith('data:')) {
+                    const image = new Image();
+                    image.src = src;
+                }
+            });
+        }
+
+        // Inicia o preload quando a página carrega
+        window.addEventListener('load', preloadImages);
+    </script>
+</body>
+</html>
