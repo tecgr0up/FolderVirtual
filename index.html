@@ -68,19 +68,21 @@
             position: relative;
         }
 
-        /* Imagem para DESKTOP (horizontal) */
+        /* ESTILOS REVISADOS PARA IMAGENS RESPONSIVAS */
+        
+        /* Imagem para DESKTOP (horizontal) - REVISADO */
         .slide-img.desktop {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Mudado de 'cover' para 'contain' */
         }
 
-        /* Imagem para MOBILE/TABLET (vertical) */
+        /* Imagem para MOBILE/TABLET (vertical) - REVISADO */
         .slide-img.mobile {
-            width: auto;
-            height: 100%;
-            object-fit: contain;
-            display: none;
+            width: 100%; /* Alterado para 100% */
+            height: auto; /* Altura automática */
+            max-height: 100%; /* Não ultrapassa a altura do container */
+            object-fit: contain; /* Garante que a imagem inteira seja visível */
         }
 
         /* Detecta dispositivo e mostra a imagem correta */
@@ -91,6 +93,11 @@
             }
             .slide-img.mobile {
                 display: none;
+            }
+            
+            /* Ajuste para desktop - fundo neutro */
+            .slide {
+                background: #f8f9fa;
             }
         }
 
@@ -106,14 +113,40 @@
             /* Ajusta o fundo para imagens verticais */
             .slide {
                 background: #f8f9fa;
+                padding: 10px; /* Adiciona um pouco de espaço ao redor */
             }
         }
 
-        /* Para telas muito pequenas (mobile) */
+        /* Para telas muito pequenas (mobile) - MELHORIAS */
         @media (max-width: 480px) {
             .carrossel-container {
                 height: 75vh;
                 border-radius: 8px;
+                width: 100vw; /* Ocupa toda a largura */
+                max-height: none; /* Remove limite máximo */
+            }
+            
+            .slide {
+                padding: 5px;
+            }
+            
+            .slide-img.mobile {
+                max-height: 100%;
+                width: auto; /* Mantém proporção */
+                max-width: 100%; /* Não ultrapassa a largura */
+            }
+        }
+
+        /* Para telas em orientação paisagem em dispositivos móveis */
+        @media (max-height: 500px) and (max-width: 1024px) {
+            .carrossel-container {
+                height: 95vh;
+            }
+            
+            .slide-img.mobile {
+                width: auto;
+                height: 100%;
+                max-width: 100%;
             }
         }
 
@@ -294,18 +327,6 @@
         
         <!-- ÁREA DOS SLIDES -->
         <div class="carrossel-slides" id="carrosselSlides">
-            <!-- 
-            PARA CADA SLIDE, VOCÊ PRECISA DE 2 IMAGENS:
-            1. Versão HORIZONTAL para desktop (.desktop)
-            2. Versão VERTICAL para mobile (.mobile)
-            
-            EXEMPLO:
-            <div class="slide active">
-                <img src="arte1-horizontal.jpg" alt="Arte 1" class="slide-img desktop">
-                <img src="arte1-vertical.jpg" alt="Arte 1" class="slide-img mobile">
-            </div>
-            -->
-            
             <!-- EXEMPLO DE SLIDES - SUBSTITUA COM SUAS IMAGENS -->
             <div class="slide active">
                 <!-- Imagem HORIZONTAL para Desktop -->
@@ -330,7 +351,7 @@
                      alt="Praia vertical" class="slide-img mobile">
             </div>
 
-             <div class="slide">
+            <div class="slide">
                 <img src="IMG TXT-03.png" 
                      alt="Praia horizontal" class="slide-img desktop">
                 <img src="mobile-004.png" 
@@ -344,15 +365,12 @@
                      alt="Praia vertical" class="slide-img mobile">
             </div>
 
-             <div class="slide">
+            <div class="slide">
                 <img src="FINAL.png" 
                      alt="Praia horizontal" class="slide-img desktop">
                 <img src="mobile-006.png" 
                      alt="Praia vertical" class="slide-img mobile">
             </div>
-
-
-            
         </div>
 
         <!-- Botões de Navegação -->
@@ -550,4 +568,3 @@
     </script>
 </body>
 </html>
-
